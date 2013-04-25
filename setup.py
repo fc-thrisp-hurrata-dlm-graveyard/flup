@@ -14,26 +14,23 @@ Links
 
 """
 from setuptools import setup
-
+from flask_flup import __version__
 
 setup(
-    name='Flask-Uploads',
-    version='0.1.4',
-    url='http://bitbucket.org/leafstorm/flask-uploads/',
+    name='Flup',
+    version=__version__,
+    url='',
     license='MIT',
-    author='Matthew "LeafStorm" Frazier',
-    author_email='leafstormrush@gmail.com',
+    author='Thrisp/Hurrata',
+    author_email='blueblank@gmail.com',
     description='Flexible and efficient upload handling for Flask',
     long_description=__doc__,
-    packages=['flaskext'],
-    namespace_packages=['flaskext'],
+    packages=['flask_flup'],
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'Flask>=0.5'
+        'Flask>=0.9'
     ],
-    tests_require='nose',
-    test_suite='nose.collector',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
