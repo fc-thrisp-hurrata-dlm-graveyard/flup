@@ -3,9 +3,7 @@
 tests/test_flup.py
 =====================
 
-NOTE: While Flup will probably work on Windows, all the filenames in
-this testing file are in the POSIX style. So, no guarantees that the tests
-will pass.
+NOTE: All the filenames in this testing file are in the POSIX style.
 """
 
 from __future__ import with_statement
@@ -63,9 +61,9 @@ class ConfigurationCase(unittest.TestCase):
             )
         app.config.update(options)
         self.flup.init_app(app)
-        self.assertEqual(app.extensions['flup'].upload_set_config['files'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
                          UploadConfiguration('/var/files', 'http://localhost:6001/'))
-        self.assertEqual(app.extensions['flup'].upload_set_config['photos'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
                          UploadConfiguration('/mnt/photos', 'http://localhost:6002/'))
 
     def test_selfserve(self):
@@ -76,9 +74,9 @@ class ConfigurationCase(unittest.TestCase):
             )
         app.config.update(options)
         self.flup.init_app(app)
-        self.assertEqual(app.extensions['flup'].upload_set_config['files'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
                          UploadConfiguration('/var/files', None))
-        self.assertEqual(app.extensions['flup'].upload_set_config['photos'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
                          UploadConfiguration('/mnt/photos', None))
 
     def test_defaults(self):
@@ -89,19 +87,19 @@ class ConfigurationCase(unittest.TestCase):
         )
         app.config.update(options)
         self.flup.init_app(app)
-        self.assertEqual(app.extensions['flup'].upload_set_config['files'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
                          UploadConfiguration('/var/uploads/files',
                          'http://localhost:6000/files/'))
-        self.assertEqual(app.extensions['flup'].upload_set_config['photos'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
                          UploadConfiguration('/var/uploads/photos', 'http://localhost:6000/photos/'))
 
     def test_default_selfserve(self):
         app = Flask(__name__)
         app.config['UPLOADS_DEFAULT_DEST'] = '/var/uploads'
         self.flup.init_app(app)
-        self.assertEqual(app.extensions['flup'].upload_set_config['files'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
                          UploadConfiguration('/var/uploads/files', None))
-        self.assertEqual(app.extensions['flup'].upload_set_config['photos'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
                          UploadConfiguration('/var/uploads/photos', None))
 
     def test_mixed_defaults(self):
@@ -114,9 +112,9 @@ class ConfigurationCase(unittest.TestCase):
         )
         app.config.update(options)
         self.flup.init_app(app)
-        self.assertEqual(app.extensions['flup'].upload_set_config['files'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
                          UploadConfiguration('/var/uploads/files', 'http://localhost:6001/files/'))
-        self.assertEqual(app.extensions['flup'].upload_set_config['photos'],
+        self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
                          UploadConfiguration('/mnt/photos', 'http://localhost:6002/'))
 
 
@@ -136,7 +134,7 @@ class PreconditionsCase(unittest.TestCase):
 
     def test_default_extensions(self):
         uset = UploadSet('files')
-        uset._config =UploadConfiguration('/uploads')
+        uset._config = UploadConfiguration('/uploads')
         extpairs = (('txt', True), ('jpg', True), ('exe', False))
         for ext, result in extpairs:
             self.assertEqual(uset.extension_allowed(ext), result)
