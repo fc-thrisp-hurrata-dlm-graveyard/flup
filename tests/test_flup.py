@@ -237,7 +237,7 @@ class ConflictResolutionCase(unittest.TestCase):
 
     def test_conflict(self):
         uset = UploadSet('files')
-        uset._config =UploadConfiguration('/uploads')
+        uset._config = UploadConfiguration('/uploads')
         tfs = TestingFileStorage(filename='foo.txt')
         self.extant('/uploads/foo.txt')
         res = uset.save(tfs)
@@ -245,7 +245,7 @@ class ConflictResolutionCase(unittest.TestCase):
 
     def test_multi_conflict(self):
         uset = UploadSet('files')
-        uset._config =UploadConfiguration('/uploads')
+        uset._config = UploadConfiguration('/uploads')
         tfs = TestingFileStorage(filename='foo.txt')
         self.extant('/uploads/foo.txt',
                     *('/uploads/foo_%d.txt' % n for n in range(1, 6)))
@@ -267,10 +267,10 @@ class PathsUrlsCase(unittest.TestCase):
         self.assertEqual(uset.path('someguy/foo.txt'), '/uploads/someguy/foo.txt')
 
     def test_url_generated(self):
-        uset = UploadSet('files')
-        Flup(self.app, uset)
+        uset = [UploadSet('files')]
+        Flup(app=self.app, upload_sets=uset)
         with self.app.test_request_context():
-            url = uset.url('foo.txt')
+            url = uset[0].url('foo.txt')
             gen = url_for('_uploads.uploaded_file', setname='files',
                       filename='foo.txt', _external=True)
             self.assertEqual(url, gen)
@@ -281,21 +281,18 @@ class PathsUrlsCase(unittest.TestCase):
             UPLOADED_FILES_DEST='/uploads',
             UPLOADED_FILES_URL='http://localhost:5001/'
         )
-        uset = UploadSet('files')
-        Flup(app, uset)
+        uset = [UploadSet('files')]
+        Flup(app=app, upload_sets=uset)
         with app.test_request_context():
-            url = uset.url('foo.txt')
+            url = uset[0].url('foo.txt')
             self.assertEqual(url, 'http://localhost:5001/foo.txt')
-        self.assertNotIn('_uploads', app.modules)
+        self.assertNotIn('_uploads', app.blueprints)
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestTestingCase))
-    suite.addTest(unittest.makeSuite(ConfigurationCase))
-    suite.addTest(unittest.makeSuite(PreconditionsCase))
-    suite.addTest(unittest.makeSuite(SavingCase))
-    suite.addTest(unittest.makeSuite(ConflictResolutionCase))
-    suite.addTest(unittest.makeSuite(PathsUrlsCase))
+    for t in [TestTestingCase, ConfigurationCase,PreconditionsCase, SavingCase,
+            ConflictResolutionCase, PathsUrlsCase]:
+        suite.addTest(unittest.makeSuite(t))
     return suite
 
 if __name__ == '__main__':

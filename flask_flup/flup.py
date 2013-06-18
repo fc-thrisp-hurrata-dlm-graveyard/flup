@@ -179,10 +179,14 @@ class TestingFileStorage(FileStorage):
 
 
 class Flup(object):
+    """
+    :param app:         The application
+    :param upload_sets: A list of instances of UploadSets
+    """
     def __init__(self, app=None,
                        upload_sets=None):
         self.app = app
-        self.upload_sets = self.is_single_set(upload_sets)
+        self.upload_sets = upload_sets
         self.upload_sets_config = {}
 
         if app is not None:
@@ -191,16 +195,8 @@ class Flup(object):
         else:
             self.app = None
 
-    def is_single_set(self, upload_sets):
-        if isinstance(upload_sets, UploadSet):
-            return (upload_sets,)
-        elif isinstance(upload_sets, list):
-            return upload_sets
-        else:
-            raise TypeError("{}: upload sets must be single instance or list of uploadsets".format(upload_sets))
-
     def init_app(self, app):
-        for uset in self.upload_sets:
+        for uset in self._upload_sets:
             uset_config = self.config_for_set(uset, app)
             self.upload_sets_config[uset.name] = uset_config
 
