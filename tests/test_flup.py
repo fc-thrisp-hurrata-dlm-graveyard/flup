@@ -12,7 +12,8 @@ import unittest
 from flask import Flask, url_for
 from flask.ext.flup import Flup
 from flask.ext.flup.flup import (UploadSet, UploadConfiguration, extension,
-    TestingFileStorage, addslash, ALL, AllExcept)
+                                 TestingFileStorage, addslash, ALL, AllExcept)
+
 
 class TestTestingCase(unittest.TestCase):
     def setUp(self):
@@ -32,10 +33,14 @@ class TestTestingCase(unittest.TestCase):
         self.assertEqual(extension('audio.m4a'), 'm4a')
 
     def test_addslash(self):
-        self.assertEqual(addslash('http://localhost:4000'), 'http://localhost:4000/')
-        self.assertEqual(addslash('http://localhost/uploads'), 'http://localhost/uploads/')
-        self.assertEqual(addslash('http://localhost:4000/'), 'http://localhost:4000/')
-        self.assertEqual(addslash('http://localhost/uploads/'), 'http://localhost/uploads/')
+        self.assertEqual(addslash('http://localhost:4000'),
+                         'http://localhost:4000/')
+        self.assertEqual(addslash('http://localhost/uploads'),
+                         'http://localhost/uploads/')
+        self.assertEqual(addslash('http://localhost:4000/'),
+                         'http://localhost:4000/')
+        self.assertEqual(addslash('http://localhost/uploads/'),
+                         'http://localhost/uploads/')
 
     def test_custom_iterables(self):
         self.assertIn('txt', ALL)
@@ -54,24 +59,26 @@ class ConfigurationCase(unittest.TestCase):
     def test_manual(self):
         app = Flask(__name__)
         options = dict(
-            UPLOADED_FILES_DEST = '/var/files',
-            UPLOADED_FILES_URL = 'http://localhost:6001/',
-            UPLOADED_PHOTOS_DEST = '/mnt/photos',
-            UPLOADED_PHOTOS_URL = 'http://localhost:6002/'
-            )
+            UPLOADED_FILES_DEST='/var/files',
+            UPLOADED_FILES_URL='http://localhost:6001/',
+            UPLOADED_PHOTOS_DEST='/mnt/photos',
+            UPLOADED_PHOTOS_URL='http://localhost:6002/'
+        )
         app.config.update(options)
         self.flup.init_app(app)
         self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
-                         UploadConfiguration('/var/files', 'http://localhost:6001/'))
+                         UploadConfiguration('/var/files',
+                                             'http://localhost:6001/'))
         self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
-                         UploadConfiguration('/mnt/photos', 'http://localhost:6002/'))
+                         UploadConfiguration('/mnt/photos',
+                                             'http://localhost:6002/'))
 
     def test_selfserve(self):
         app = Flask(__name__)
         options = dict(
-            UPLOADED_FILES_DEST = '/var/files',
-            UPLOADED_PHOTOS_DEST = '/mnt/photos'
-            )
+            UPLOADED_FILES_DEST='/var/files',
+            UPLOADED_PHOTOS_DEST='/mnt/photos'
+        )
         app.config.update(options)
         self.flup.init_app(app)
         self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
@@ -82,16 +89,17 @@ class ConfigurationCase(unittest.TestCase):
     def test_defaults(self):
         app = Flask(__name__)
         options = dict(
-            UPLOADS_DEFAULT_DEST = '/var/uploads',
-            UPLOADS_DEFAULT_URL = 'http://localhost:6000/'
+            UPLOADS_DEFAULT_DEST='/var/uploads',
+            UPLOADS_DEFAULT_URL='http://localhost:6000/'
         )
         app.config.update(options)
         self.flup.init_app(app)
         self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
                          UploadConfiguration('/var/uploads/files',
-                         'http://localhost:6000/files/'))
+                                             'http://localhost:6000/files/'))
         self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
-                         UploadConfiguration('/var/uploads/photos', 'http://localhost:6000/photos/'))
+                         UploadConfiguration('/var/uploads/photos',
+                                             'http://localhost:6000/photos/'))
 
     def test_default_selfserve(self):
         app = Flask(__name__)
@@ -105,17 +113,19 @@ class ConfigurationCase(unittest.TestCase):
     def test_mixed_defaults(self):
         app = Flask(__name__)
         options = dict(
-            UPLOADS_DEFAULT_DEST = '/var/uploads',
-            UPLOADS_DEFAULT_URL = 'http://localhost:6001/',
-            UPLOADED_PHOTOS_DEST = '/mnt/photos',
-            UPLOADED_PHOTOS_URL = 'http://localhost:6002/'
+            UPLOADS_DEFAULT_DEST='/var/uploads',
+            UPLOADS_DEFAULT_URL='http://localhost:6001/',
+            UPLOADED_PHOTOS_DEST='/mnt/photos',
+            UPLOADED_PHOTOS_URL='http://localhost:6002/'
         )
         app.config.update(options)
         self.flup.init_app(app)
         self.assertEqual(app.extensions['flup'].upload_sets_config['files'],
-                         UploadConfiguration('/var/uploads/files', 'http://localhost:6001/files/'))
+                         UploadConfiguration('/var/uploads/files',
+                                             'http://localhost:6001/files/'))
         self.assertEqual(app.extensions['flup'].upload_sets_config['photos'],
-                         UploadConfiguration('/mnt/photos', 'http://localhost:6002/'))
+                         UploadConfiguration('/mnt/photos',
+                                             'http://localhost:6002/'))
 
 
 class PreconditionsCase(unittest.TestCase):
@@ -175,7 +185,7 @@ class SavingCase(unittest.TestCase):
 
     def test_save_namedext(self):
         uset = UploadSet('files')
-        uset._config =UploadConfiguration('/uploads')
+        uset._config = UploadConfiguration('/uploads')
         tfs = TestingFileStorage(filename='boat.jpg')
         res = uset.save(tfs, name='photo_123.')
         self.assertEqual(res, 'photo_123.jpg')
@@ -183,7 +193,7 @@ class SavingCase(unittest.TestCase):
 
     def test_folder_namedext(self):
         uset = UploadSet('files')
-        uset._config =UploadConfiguration('/uploads')
+        uset._config = UploadConfiguration('/uploads')
         tfs = TestingFileStorage(filename='boat.jpg')
         res = uset.save(tfs, folder='someguy', name='photo_123.')
         self.assertEqual(res, 'someguy/photo_123.jpg')
@@ -191,7 +201,7 @@ class SavingCase(unittest.TestCase):
 
     def test_implicit_folder(self):
         uset = UploadSet('files')
-        uset._config =UploadConfiguration('/uploads')
+        uset._config = UploadConfiguration('/uploads')
         tfs = TestingFileStorage(filename='boat.jpg')
         res = uset.save(tfs, name='someguy/photo_123.')
         self.assertEqual(res, 'someguy/photo_123.jpg')
@@ -199,7 +209,7 @@ class SavingCase(unittest.TestCase):
 
     def test_secured_filename(self):
         uset = UploadSet('files', ALL)
-        uset._config =UploadConfiguration('/uploads')
+        uset._config = UploadConfiguration('/uploads')
         tfs1 = TestingFileStorage(filename='/etc/passwd')
         tfs2 = TestingFileStorage(filename='../../myapp.wsgi')
         res1 = uset.save(tfs1)
@@ -264,15 +274,18 @@ class PathsUrlsCase(unittest.TestCase):
         uset = UploadSet('files')
         uset._config = UploadConfiguration('/uploads')
         self.assertEqual(uset.path('foo.txt'), '/uploads/foo.txt')
-        self.assertEqual(uset.path('someguy/foo.txt'), '/uploads/someguy/foo.txt')
+        self.assertEqual(uset.path('someguy/foo.txt'),
+                         '/uploads/someguy/foo.txt')
 
     def test_url_generated(self):
         uset = [UploadSet('files')]
         Flup(app=self.app, upload_sets=uset)
         with self.app.test_request_context():
             url = uset[0].url('foo.txt')
-            gen = url_for('_uploads.uploaded_file', setname='files',
-                      filename='foo.txt', _external=True)
+            gen = url_for('_uploads.uploaded_file',
+                          setname='files',
+                          filename='foo.txt',
+                          _external=True)
             self.assertEqual(url, gen)
 
     def test_url_based(self):
@@ -288,10 +301,11 @@ class PathsUrlsCase(unittest.TestCase):
             self.assertEqual(url, 'http://localhost:5001/foo.txt')
         self.assertNotIn('_uploads', app.blueprints)
 
+
 def suite():
     suite = unittest.TestSuite()
-    for t in [TestTestingCase, ConfigurationCase,PreconditionsCase, SavingCase,
-            ConflictResolutionCase, PathsUrlsCase]:
+    for t in [TestTestingCase, ConfigurationCase, PreconditionsCase,
+              SavingCase, ConflictResolutionCase, PathsUrlsCase]:
         suite.addTest(unittest.makeSuite(t))
     return suite
 

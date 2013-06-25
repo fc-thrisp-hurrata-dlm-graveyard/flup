@@ -13,15 +13,14 @@ from werkzeug import secure_filename, FileStorage, LocalProxy
 
 _flup = LocalProxy(lambda: current_app.extensions['flup'])
 
-# Extension presets
-#: If your Web server has PHP installed and set to auto-run, you might want to
-#: add ``php`` to the DENY setting.
+
 class AllExcept(object):
     def __init__(self, items):
         self.items = items
 
     def __contains__(self, item):
         return item not in self.items
+
 
 class All(object):
     def __contains__(self, item):
@@ -127,6 +126,7 @@ class UploadSet:
             folder, name = name.rsplit("/", 1)
 
         basename = lowercase_ext(secure_filename(storage.filename))
+
         if name:
             if name.endswith('.'):
                 basename = name + extension(basename)
@@ -166,9 +166,13 @@ class TestingFileStorage(FileStorage):
     def __init__(self, stream=None, filename=None, name=None,
                  content_type='application/octet-stream', content_length=-1,
                  headers=None):
-        FileStorage.__init__(self, stream, filename, name=name,
-            content_type=content_type, content_length=content_length,
-            headers=None)
+        FileStorage.__init__(self,
+                             stream,
+                             filename,
+                             name=name,
+                             content_type=content_type,
+                             content_length=content_length,
+                             headers=None)
         self.saved = None
 
     def save(self, dst, buffer_size=16384):
@@ -183,8 +187,9 @@ class Flup(object):
     :param app:         The application
     :param upload_sets: A list of instances of UploadSets
     """
-    def __init__(self, app=None,
-                       upload_sets=None):
+    def __init__(self,
+                 app=None,
+                 upload_sets=None):
         self.app = app
         self.upload_sets = upload_sets
         self.upload_sets_config = {}
@@ -196,17 +201,20 @@ class Flup(object):
             self.app = None
 
     def init_app(self, app):
-        for uset in self._upload_sets:
-            uset_config = self.config_for_set(uset, app)
-            self.upload_sets_config[uset.name] = uset_config
+        self.register_upload_sets(app, self.upload_sets)
 
-        should_serve = any(s.base_url is None for s in iter(self.upload_sets_config.values()))
+        should_serve = any(s.base_url is None
+                           for s in iter(self.upload_sets_config.values()))
 
         if '_uploads' not in app.blueprints and should_serve:
             app.register_blueprint(self._blueprint)
 
         app.extensions['flup'] = self
 
+    def register_upload_sets(self, app, upload_sets):
+        for uset in upload_sets:
+            uset_config = self.config_for_set(uset, app)
+            self.upload_sets_config[uset.name] = uset_config
 
     def config_for_set(self, uset, app):
         app_config = app.config
@@ -216,7 +224,7 @@ class Flup(object):
         app_default_dest = app_config.get('UPLOADS_DEFAULT_DEST', None)
         app_default_url = app_config.get('UPLOADS_DEFAULT_URL', None)
 
-        allow_extns = tuple(app_config.get('{}{}'.format(prefix,'ALLOW'), ()))
+        allow_extns = tuple(app_config.get('{}{}'.format(prefix, 'ALLOW'), ()))
         deny_extns = tuple(app_config.get('{}{}'.format(prefix, 'DENY'), ()))
         destination = app_config.get('{}{}'.format(prefix, 'DEST'))
         base_url = app_config.get('{}{}'.format(prefix, 'URL'))
@@ -238,12 +246,15 @@ class Flup(object):
         if base_url is None and using_defaults and app_default_url:
             base_url = addslash(app_default_url) + uset.name + '/'
 
-        return UploadConfiguration(destination, base_url, allow_extns, deny_extns)
-
+        return UploadConfiguration(destination, base_url,
+                                   allow_extns,
+                                   deny_extns)
 
     @property
     def _blueprint(self):
-        uploads_blueprint = Blueprint('_uploads', __name__, url_prefix='/_uploads')
+        uploads_blueprint = Blueprint('_uploads',
+                                      __name__,
+                                      url_prefix='/_uploads')
 
         def uploaded_file(setname, filename):
             config = _flup.upload_sets_config.get(setname, None)
@@ -251,6 +262,7 @@ class Flup(object):
                 abort(404)
             return send_from_directory(config.destination, filename)
 
-        uploads_blueprint.add_url_rule('/<setname>/<path:filename>', view_func=uploaded_file)
+        uploads_blueprint.add_url_rule('/<setname>/<path:filename>',
+                                       view_func=uploaded_file)
 
         return uploads_blueprint

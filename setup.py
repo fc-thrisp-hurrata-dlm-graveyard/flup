@@ -1,25 +1,15 @@
 """
-Flask-Uploads
+Flup
 -------------
-Flask-Uploads provides flexible upload handling for Flask applications. It
-lets you divide your uploads into sets that the application user can publish
-separately.
-
-Links
-`````
-* `documentation <http://packages.python.org/Flask-Uploads>`_
-* `development version
-  <http://bitbucket.org/leafstorm/flask-uploads/get/tip.gz#egg=Flask-Uploads-dev>`_
-
-
+Flexible upload handling for Flask applications.
 """
 from setuptools import setup
 from flask_flup import __version__
 
 setup(
-    name='Flup',
+    name='Flask-Flup',
     version=__version__,
-    url='',
+    url='https://github.com/thrisp/flup.git',
     license='MIT',
     author='Thrisp/Hurrata',
     author_email='blueblank@gmail.com',
@@ -31,6 +21,7 @@ setup(
     install_requires=[
         'Flask>=0.9'
     ],
+    test_suite='tests',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
